@@ -1,6 +1,6 @@
 /*
 *
-*  Push Notifications codelab
+*  Push Notifications
 *  Copyright 2015 Google Inc. All rights reserved.
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,4 +21,52 @@
 
 'use strict';
 
-// TODO
+console.log('Started', self);
+
+self.addEventListener('install', function (event) {
+    self.skipWaiting();
+    console.log('Installed', event);
+});
+
+self.addEventListener('activate', function (event) {
+    console.log('Activated', event);
+});
+
+self.addEventListener('push', function (event) {
+    console.log('Push Message Received', event);
+
+    event.waitUntil(
+        self.registration.showNotification('Push Message', {
+            body: 'Push Notification Delivered',
+            icon: 'images/icon.png',
+            tag: 'gtag'
+        })
+    );
+});
+
+self.addEventListener('notificationclick', function (event) {
+    console.log(event.notification.tag);
+
+    event.notification.close();
+
+    var url = 'https://youtu.be/gYMkEMCHtJ4';
+
+    event.waitUntil(
+      clients.matchAll({
+          type: 'window'
+      }).then(function (windowClients) {
+          console.log(windowClients);
+
+          for (var i = 0; i < windowClients.length; i++) {
+              var client = windowClients[i];
+              console.log('WindowClient', client);
+              if (client.url === url && 'focus' in client) {
+                  return client.focus();
+              }
+          }
+          if (clients.openWindow) {
+              return clients.openWindow(url);
+          }
+      })
+    );
+});
